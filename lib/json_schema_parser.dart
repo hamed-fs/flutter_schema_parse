@@ -21,11 +21,11 @@ class JsonSchemaParser {
           ? 'List<${convertToSingular(ReCase(name).pascalCase)}>'
           : _typeMap[type];
 
-  static List<Model> _getModel(Map<String, dynamic> jsonSchema) {
+  static List<Model> _getModel(Map<String, dynamic> schema) {
     List<Model> parent = [];
 
-    if (jsonSchema['properties'] != null) {
-      for (var property in jsonSchema['properties'].entries) {
+    if (schema['properties'] != null) {
+      for (var property in schema['properties'].entries) {
         Model child = Model();
 
         child.title = ReCase(property.key).camelCase;
