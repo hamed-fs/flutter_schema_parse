@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:flutter_schema_parse/model.dart';
 import 'package:flutter_schema_parse/json_schema_parser.dart';
 
 void main() => runApp(App());
@@ -44,9 +45,9 @@ class _HomePageState extends State<HomePage> {
   void _loadAStudentAsset() async {
     final String json = await rootBundle.loadString('assets/receive.json');
     final Map<String, dynamic> schema = jsonDecode(json);
+    List<Model> models = JsonSchemaParser.getModel(schema);
 
-    print(JsonSchemaParser.getClass('ActiveSymbolResponse', schema));
-
+    JsonSchemaParser.getAllClasses('TicksReceive', models);
     return;
   }
 }
