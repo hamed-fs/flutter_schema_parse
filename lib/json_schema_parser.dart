@@ -74,8 +74,9 @@ class JsonSchemaParser {
     @required String className,
     @required List<SchemaModel> models,
   }) {
-    final StringBuffer result = StringBuffer()
-      ..write('$className.fromJson(Map<String, dynamic> json) {');
+    final StringBuffer result = StringBuffer(
+      '$className.fromJson(Map<String, dynamic> json) {',
+    );
 
     for (SchemaModel model in models) {
       final String className = model.className;
