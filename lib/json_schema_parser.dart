@@ -60,24 +60,24 @@ class JsonSchemaParser {
     result.write('$className.fromJson(Map<String, dynamic> json) {');
 
     for (Model model in models) {
-      if (model.attributeType == _objectType) {
+      if (model.schemaType == _objectType) {
         result.write('''
-          ${model.title} = json['${model.attributeTitle}'] != null
-            ? ${model.className}.fromJson(json['${model.attributeTitle}'])
+          ${model.title} = json['${model.schemaTitle}'] != null
+            ? ${model.className}.fromJson(json['${model.schemaTitle}'])
             : null;
         ''');
-      } else if (model.attributeType == _arrayType) {
+      } else if (model.schemaType == _arrayType) {
         result.write('''
-          if (json['${model.attributeTitle}'] != null) {
+          if (json['${model.schemaTitle}'] != null) {
             ${model.title} = List<${model.className}>();
             
-            json['${model.attributeTitle}'].forEach((item) {
+            json['${model.schemaTitle}'].forEach((item) {
               ${model.className}.add(${model.className}.fromJson(item));
             });
           }
         ''');
       } else {
-        result.write('''${model.title} = json['${model.attributeTitle}'];''');
+        result.write('''${model.title} = json['${model.schemaTitle}'];''');
       }
     }
 
@@ -93,21 +93,21 @@ class JsonSchemaParser {
     result.write('final Map<String, dynamic> data = Map<String, dynamic>();');
 
     for (Model model in models) {
-      if (model.attributeType == _objectType) {
+      if (model.schemaType == _objectType) {
         result.write('''
           if (${model.title} != null) {
-            data['${model.attributeTitle}'] = ${model.title}.toJson();
+            data['${model.schemaTitle}'] = ${model.title}.toJson();
           }
         ''');
-      } else if (model.attributeType == _arrayType) {
+      } else if (model.schemaType == _arrayType) {
         result.write('''
           if (${model.title} != null) {
-            data['${model.attributeTitle}'] =
+            data['${model.schemaTitle}'] =
                 ${model.title}.map((item) => item.toJson()).toList();
           }
         ''');
       } else {
-        result.write('''data['${model.attributeTitle}'] = ${model.title};''');
+        result.write('''data['${model.schemaTitle}'] = ${model.title};''');
       }
     }
 
@@ -124,11 +124,11 @@ class JsonSchemaParser {
       for (var entry in schema['properties'].entries) {
         Model child = Model();
 
+        child.className = _getClassName(entry.value['type'], entry.key);
         child.title = ReCase(entry.key).camelCase;
         child.type = _getObjectType(entry.value['type'], entry.key);
-        child.attributeTitle = entry.key;
-        child.attributeType = entry.value['type'];
-        child.className = _getClassName(entry.value['type'], entry.key);
+        child.schemaTitle = entry.key;
+        child.schemaType = entry.value['type'];
         child.children = [];
 
         if (entry.value['type'] == _objectType) {

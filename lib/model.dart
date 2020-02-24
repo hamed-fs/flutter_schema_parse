@@ -1,8 +1,8 @@
 class Model {
+  String className;
   String title;
   String type;
-  String className;
-  String attributeTitle;
-  String attributeType;
+  String schemaTitle;
+  String schemaType;
   List<Model> children;
 }
