@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
     List<SchemaModel> models = JsonSchemaParser.getModel(schema: schema);
 
     var result =
-        JsonSchemaParser.getClasses(className: 'SampleClass', models: models);
+        JsonSchemaParser().getClasses(className: 'SampleClass', models: models);
     return;
   }
 }
