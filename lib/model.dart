@@ -1,8 +1,8 @@
-class Model {
+class SchemaModel {
   String className;
   String title;
   String type;
   String schemaTitle;
   String schemaType;
-  List<Model> children;
+  List<SchemaModel> children;
 }

@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
     final String json =
         await rootBundle.loadString('assets/sample_schema.json');
     final Map<String, dynamic> schema = jsonDecode(json);
-    List<Model> models = JsonSchemaParser.getModel(schema);
+    List<SchemaModel> models = JsonSchemaParser.getModel(schema);
 
     JsonSchemaParser.getAllClasses('SampleClass', models);
     return;
