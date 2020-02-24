@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:flutter_schema_parse/model.dart';
+import 'package:flutter_schema_parse/schema_model.dart';
 import 'package:flutter_schema_parse/json_schema_parser.dart';
 
 void main() => runApp(App());
@@ -46,9 +46,10 @@ class _HomePageState extends State<HomePage> {
     final String json =
         await rootBundle.loadString('assets/sample_schema.json');
     final Map<String, dynamic> schema = jsonDecode(json);
-    List<SchemaModel> models = JsonSchemaParser.getModel(schema);
+    List<SchemaModel> models = JsonSchemaParser.getModel(schema: schema);
 
-    JsonSchemaParser.getAllClasses('SampleClass', models);
+    var result =
+        JsonSchemaParser.getClasses(className: 'SampleClass', models: models);
     return;
   }
 }
