@@ -1,240 +1,131 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "Server Status (response)",
-  "description": "Server status alongside general settings like call limits, currencies information, supported languages, etc.",
+  "title": "Account Status (response)",
+  "description": "A message with Account Status",
   "type": "object",
   "required": ["echo_req", "msg_type"],
   "properties": {
-    "website_status": {
-      "title": "website_status",
-      "description": "Server status and other information regarding general settings",
+    "get_account_status": {
+      "title": "get_account_status",
+      "description": "Account status details",
       "type": "object",
-      "required": ["api_call_limits", "crypto_config", "currencies_config"],
+      "required": [
+        "prompt_client_to_authenticate",
+        "risk_classification",
+        "status"
+      ],
       "properties": {
-        "api_call_limits": {
-          "description": "Maximum number of API calls during specified period of time.",
+        "authentication": {
+          "description": "This represents the authentication status of the user and it includes what authentication is needed.",
           "type": "object",
-          "required": [
-            "max_proposal_subscription",
-            "max_requestes_general",
-            "max_requests_outcome",
-            "max_requests_pricing"
-          ],
+          "required": ["needs_verification"],
           "properties": {
-            "max_proposal_subscription": {
-              "description": "Maximum subscription to proposal calls.",
+            "document": {
+              "description": "The authentication status for document.",
               "type": "object",
-              "required": ["applies_to", "max"],
               "properties": {
-                "applies_to": {
-                  "description": "Describes which calls this limit applies to.",
-                  "type": "string"
+                "expiry_date": {
+                  "description": "This is the epoch of the document expiry date.",
+                  "type": "integer"
                 },
-                "max": {
-                  "description": "Maximum number of allowed calls.",
-                  "type": "number"
-                }
-              }
-            },
-            "max_requestes_general": {
-              "description": "Maximum number of general requests allowed during specified period of time.",
-              "type": "object",
-              "required": ["applies_to", "hourly", "minutely"],
-              "properties": {
-                "applies_to": {
-                  "description": "Describes which calls this limit applies to.",
-                  "type": "string"
+                "further_submissions_allowed": {
+                  "description": "This represent the number of submissions allowed for client to submit documents",
+                  "type": "integer"
                 },
-                "hourly": {
-                  "description": "The maximum of allowed calls per hour.",
-                  "type": "number"
-                },
-                "minutely": {
-                  "description": "The maximum of allowed calls per minute.",
-                  "type": "number"
-                }
-              }
-            },
-            "max_requests_outcome": {
-              "description": "Maximum number of outcome requests allowed during specified period of time.",
-              "type": "object",
-              "required": ["applies_to", "hourly", "minutely"],
-              "properties": {
-                "applies_to": {
-                  "description": "Describes which calls this limit applies to.",
-                  "type": "string"
-                },
-                "hourly": {
-                  "description": "The maximum of allowed calls per hour.",
-                  "type": "number"
-                },
-                "minutely": {
-                  "description": "The maximum of allowed calls per minute.",
-                  "type": "number"
-                }
-              }
-            },
-            "max_requests_pricing": {
-              "description": "Maximum number of pricing requests allowed during specified period of time.",
-              "type": "object",
-              "required": ["applies_to", "hourly", "minutely"],
-              "properties": {
-                "applies_to": {
-                  "description": "Describes which calls this limit applies to.",
-                  "type": "string"
-                },
-                "hourly": {
-                  "description": "The maximum of allowed calls per hour.",
-                  "type": "number"
-                },
-                "minutely": {
-                  "description": "The maximum of allowed calls per minute.",
-                  "type": "number"
-                }
-              }
-            }
-          }
-        },
-        "clients_country": {
-          "description": "Country code of connected IP",
-          "type": "string"
-        },
-        "crypto_config": {
-          "description": "Provides minimum withdrawal for all crypto currency in USD",
-          "type": "object",
-          "minProperties": 1,
-          "patternProperties": {
-            "^[A-Z]{3,4}$": {
-              "description": "Crypto-currency code",
-              "type": "object",
-              "required": ["minimum_withdrawal"],
-              "properties": {
-                "minimum_withdrawal": {
-                  "description": "Minimum withdrawal for the currency in USD.",
-                  "type": "number"
-                }
-              }
-            }
-          }
-        },
-        "currencies_config": {
-          "description": "Available currencies and their information",
-          "type": "object",
-          "minProperties": 1,
-          "patternProperties": {
-            "^[A-Z]{3,4}$": {
-              "description": "Currency code",
-              "type": "object",
-              "required": [
-                "fractional_digits",
-                "is_deposit_suspended",
-                "is_suspended",
-                "is_withdrawal_suspended",
-                "stake_default",
-                "transfer_between_accounts",
-                "type"
-              ],
-              "properties": {
-                "type": {
-                  "description": "Type of the currency.",
+                "status": {
+                  "description": "This represents the current status of the proof of address document submitted for authentication.",
                   "type": "string",
-                  "enum": ["fiat", "crypto"]
+                  "enum": [
+                    "none",
+                    "pending",
+                    "rejected",
+                    "verified",
+                    "expired",
+                    "suspected"
+                  ]
+                }
+              }
+            },
+            "identity": {
+              "description": "The authentication status for identity.",
+              "type": "object",
+              "properties": {
+                "expiry_date": {
+                  "description": "This is the epoch of the document expiry date.",
+                  "type": "integer"
                 },
-                "fractional_digits": {
-                  "description": "Number of fractional digits.",
-                  "type": "number"
+                "further_submissions_allowed": {
+                  "description": "This represent the number times a client is allowed to submit documents",
+                  "type": "integer"
                 },
-                "is_deposit_suspended": {
-                  "description": "Current status for payment deposit for the currency",
-                  "type": "number",
-                  "enum": [0, 1]
-                },
-                "is_suspended": {
-                  "description": "Current status for the currency",
-                  "type": "number",
-                  "enum": [0, 1]
-                },
-                "is_withdrawal_suspended": {
-                  "description": "Current status for payment withdrawal for the currency",
-                  "type": "number",
-                  "enum": [0, 1]
-                },
-                "stake_default": {
-                  "description": "Default stake value for the currency.",
-                  "type": "number",
-                  "minimum": 0
-                },
-                "transfer_between_accounts": {
-                  "description": "Fees and range of allowed amount for transfer between accounts with different types of currencies.",
+                "services": {
+                  "description": "This shows the information about the authentication services implemented",
                   "type": "object",
-                  "required": ["fees", "limits"],
                   "properties": {
-                    "fees": {
-                      "description": "The fee that applies for transfer between accounts with different types of currencies.",
+                    "onfido": {
+                      "description": "This shows the information related to Onfido supported services",
                       "type": "object",
-                      "patternProperties": {
-                        "^[A-Z]{3,4}$": {
-                          "description": "Currency code.",
-                          "type": "number",
-                          "maximum": 7,
-                          "minimum": 0
-                        }
-                      }
-                    },
-                    "limits": {
-                      "description": "Range of allowed amount for transfer between accounts.",
-                      "type": "object",
-                      "required": ["min"],
                       "properties": {
-                        "max": {
-                          "description": "Maximum allowed amount for transfer between accounts with different types of currencies.",
-                          "type": "number",
-                          "minimum": 0
+                        "documents": {
+                          "description": "This shows the list of documents types supported by Onfido",
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "examples": [
+                              "Driving Licence",
+                              "National Identity Card",
+                              "Passport"
+                            ]
+                          }
                         },
-                        "min": {
-                          "description": "Minimum allowed amount for transfer between accounts with different types of currencies.",
-                          "type": "number",
-                          "minimum": 0
+                        "is_country_supported": {
+                          "description": "This shows the information if the country is supported by Onfido",
+                          "type": "integer",
+                          "enum": [1, 0]
                         }
                       }
                     }
                   }
+                },
+                "status": {
+                  "description": "This represent the current status for proof of identity document submitted for authentication.",
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "pending",
+                    "rejected",
+                    "verified",
+                    "expired",
+                    "suspected"
+                  ]
                 }
+              }
+            },
+            "needs_verification": {
+              "description": "An array containing the list of required authentication.",
+              "type": "array",
+              "items": {
+                "description": "This represents the current type of authentication required, possible values are identity and document.",
+                "type": "string"
               }
             }
           }
         },
-        "message": {
-          "description": "Text for site status banner, contains problem description. shown only if set by the system.",
+        "prompt_client_to_authenticate": {
+          "description": "Indicates whether the client should be prompted to authenticate their account.",
+          "type": "integer",
+          "enum": [1, 0]
+        },
+        "risk_classification": {
+          "description": "Client risk classification: `low`, `standard`, `high`.",
           "type": "string"
         },
-        "site_status": {
-          "description": "The current status of the website.",
-          "type": "string",
-          "enum": ["up", "down"]
-        },
-        "supported_languages": {
-          "description": "Provides codes for languages supported.",
+        "status": {
+          "description": "Account status. Possible status: \n- `age_verification`: client is age-verified. \n- `authenticated`: client is fully authenticated. \n- `cashier_locked`: cashier is locked. \n- `crs_tin_information`: client has updated tax related information. \n- `disabled`: account is disabled. \n- `document_expired`: client's submitted proof-of-identity documents have expired. \n- `document_expiring_soon`: client's submitted proof-of-identity documents are expiring within a month. \n- `financial_assessment_not_complete`: client has not completed financial assessment. \n- `professional`: this client has opted for a professional account. \n- `ukgc_funds_protection`: client has acknowledged UKGC funds protection notice. \n- `unwelcome`: client cannot deposit or buy contracts, but can withdraw or sell contracts. \n- `withdrawal_locked`: deposits allowed but withdrawals locked.",
           "type": "array",
           "items": {
             "type": "string"
           }
-        },
-        "terms_conditions_version": {
-          "description": "Latest terms and conditions version.",
-          "type": "string"
-        }
-      }
-    },
-    "subscription": {
-      "title": "Subscription information",
-      "description": "For subscription requests only",
-      "type": "object",
-      "required": ["id"],
-      "properties": {
-        "id": {
-          "description": "A per-connection unique identifier. Can be passed to the forget API call to unsubscribe.",
-          "type": "string"
         }
       }
     },
@@ -245,7 +136,7 @@
     "msg_type": {
       "description": "Action name of the request made.",
       "type": "string",
-      "enum": ["website_status"]
+      "enum": ["get_account_status"]
     },
     "req_id": {
       "description": "Optional field sent in request to map to response, present only when request contains `req_id`.",
