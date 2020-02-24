@@ -11,7 +11,7 @@ const String _arrayType = 'array';
 class JsonSchemaParser {
   static List<StringBuffer> _result;
 
-  static Map<String, String> _typeMap = <String, String>{
+  static final Map<String, String> _typeMap = <String, String>{
     'integer': 'int',
     'string': 'String',
     'number': 'num',
@@ -37,22 +37,22 @@ class JsonSchemaParser {
               ? 'List<${_getClassName(type: type, name: name)}>'
               : _typeMap[type];
 
-  static String _getClass({
+  static String _createClass({
     @required String className,
     @required List<SchemaModel> models,
   }) {
     final StringBuffer result = StringBuffer();
 
     result.write('class $className {');
-    result.write(_buildClassContractor(className: className, models: models));
-    result.write(_buildClassFromJson(className: className, models: models));
-    result.write(_buildClassToJson(models: models));
+    result.write(_createContractor(className: className, models: models));
+    result.write(_createFromJsonMethod(className: className, models: models));
+    result.write(_createToJsonMethod(models: models));
     result.write('}');
 
     return DartFormatter().format(result.toString());
   }
 
-  static StringBuffer _buildClassContractor({
+  static StringBuffer _createContractor({
     @required String className,
     @required List<SchemaModel> models,
   }) {
@@ -73,7 +73,7 @@ class JsonSchemaParser {
     return result;
   }
 
-  static StringBuffer _buildClassFromJson({
+  static StringBuffer _createFromJsonMethod({
     @required String className,
     @required List<SchemaModel> models,
   }) {
@@ -108,7 +108,9 @@ class JsonSchemaParser {
     return result;
   }
 
-  static StringBuffer _buildClassToJson({@required List<SchemaModel> models}) {
+  static StringBuffer _createToJsonMethod({
+    @required List<SchemaModel> models,
+  }) {
     final StringBuffer result = StringBuffer();
 
     result.write('Map<String, dynamic> toJson() {');
@@ -177,7 +179,7 @@ class JsonSchemaParser {
     }
 
     if (models.isNotEmpty) {
-      _result.add(StringBuffer(JsonSchemaParser._getClass(
+      _result.add(StringBuffer(JsonSchemaParser._createClass(
         className: className,
         models: models,
       )));
