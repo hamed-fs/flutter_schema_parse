@@ -43,11 +43,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _loadAStudentAsset() async {
-    final String json = await rootBundle.loadString('assets/receive.json');
+    final String json =
+        await rootBundle.loadString('assets/sample_schema.json');
     final Map<String, dynamic> schema = jsonDecode(json);
     List<Model> models = JsonSchemaParser.getModel(schema);
 
-    JsonSchemaParser.getAllClasses('TicksReceive', models);
+    JsonSchemaParser.getAllClasses('SampleClass', models);
     return;
   }
 }

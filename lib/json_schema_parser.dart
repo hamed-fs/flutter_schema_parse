@@ -4,6 +4,9 @@ import 'package:inflection2/inflection2.dart';
 
 import 'package:flutter_schema_parse/model.dart';
 
+const String _objectType = 'object';
+const String _arrayType = 'array';
+
 const Map<String, String> _typeMap = <String, String>{
   'integer': 'int',
   'string': 'String',
@@ -11,48 +14,23 @@ const Map<String, String> _typeMap = <String, String>{
 };
 
 class JsonSchemaParser {
-  static String _getClassName(String type, String name) => type == 'object'
+  static String _getClassName(String type, String name) => type == _objectType
       ? ReCase(name).pascalCase
-      : type == 'array' ? convertToSingular(ReCase(name).pascalCase) : null;
+      : type == _arrayType ? convertToSingular(ReCase(name).pascalCase) : null;
 
-  static String _getObjectType(String type, String name) => type == 'object'
+  static String _getObjectType(String type, String name) => type == _objectType
       ? _getClassName(type, name)
-      : type == 'array' ? 'List<${_getClassName(type, name)}>' : _typeMap[type];
+      : type == _arrayType
+          ? 'List<${_getClassName(type, name)}>'
+          : _typeMap[type];
 
-  static List<Model> getModel(Map<String, dynamic> schema) {
-    List<Model> parent = [];
-
-    if (schema['properties'] != null) {
-      for (var property in schema['properties'].entries) {
-        Model child = Model();
-
-        child.title = ReCase(property.key).camelCase;
-        child.type = _getObjectType(property.value['type'], property.key);
-        child.attributeTitle = property.key;
-        child.attributeType = property.value['type'];
-        child.className = _getClassName(property.value['type'], property.key);
-        child.children = [];
-
-        if (property.value['type'] == 'object') {
-          child.children.addAll(getModel(property.value));
-        } else if (property.value['type'] == 'array') {
-          child.children.addAll(getModel(property.value['items']));
-        }
-
-        parent.add(child);
-      }
-    }
-
-    return parent;
-  }
-
-  static String getClasses(String className, List<Model> models) {
+  static String _getClasses(String className, List<Model> models) {
     StringBuffer result = StringBuffer();
 
     result.write('class $className {');
     result.write(_buildContractor(className, models));
     result.write(_buildFromJson(className, models));
-    result.write(_buildToJson(result, models));
+    result.write(_buildToJson(models));
     result.write('}');
 
     return DartFormatter().format(result.toString());
@@ -80,14 +58,15 @@ class JsonSchemaParser {
     StringBuffer result = StringBuffer();
 
     result.write('$className.fromJson(Map<String, dynamic> json) {');
+
     for (Model model in models) {
-      if (model.attributeType == 'object') {
+      if (model.attributeType == _objectType) {
         result.write('''
           ${model.title} = json['${model.attributeTitle}'] != null
             ? ${model.className}.fromJson(json['${model.attributeTitle}'])
             : null;
         ''');
-      } else if (model.attributeType == 'array') {
+      } else if (model.attributeType == _arrayType) {
         result.write('''
           if (json['${model.attributeTitle}'] != null) {
             ${model.title} = List<${model.className}>();
@@ -107,19 +86,20 @@ class JsonSchemaParser {
     return result;
   }
 
-  static StringBuffer _buildToJson(StringBuffer result, List<Model> models) {
+  static StringBuffer _buildToJson(List<Model> models) {
     StringBuffer result = StringBuffer();
 
     result.write('Map<String, dynamic> toJson() {');
     result.write('final Map<String, dynamic> data = Map<String, dynamic>();');
+
     for (Model model in models) {
-      if (model.attributeType == 'object') {
+      if (model.attributeType == _objectType) {
         result.write('''
           if (${model.title} != null) {
             data['${model.attributeTitle}'] = ${model.title}.toJson();
           }
         ''');
-      } else if (model.attributeType == 'array') {
+      } else if (model.attributeType == _arrayType) {
         result.write('''
           if (${model.title} != null) {
             data['${model.attributeTitle}'] =
@@ -132,15 +112,41 @@ class JsonSchemaParser {
     }
 
     result.write('return data;');
-
     result.write('}');
 
     return result;
   }
 
+  static List<Model> getModel(Map<String, dynamic> schema) {
+    List<Model> parent = [];
+
+    if (schema['properties'] != null) {
+      for (var entry in schema['properties'].entries) {
+        Model child = Model();
+
+        child.title = ReCase(entry.key).camelCase;
+        child.type = _getObjectType(entry.value['type'], entry.key);
+        child.attributeTitle = entry.key;
+        child.attributeType = entry.value['type'];
+        child.className = _getClassName(entry.value['type'], entry.key);
+        child.children = [];
+
+        if (entry.value['type'] == _objectType) {
+          child.children.addAll(getModel(entry.value));
+        } else if (entry.value['type'] == _arrayType) {
+          child.children.addAll(getModel(entry.value['items']));
+        }
+
+        parent.add(child);
+      }
+    }
+
+    return parent;
+  }
+
   static void getAllClasses(String className, List<Model> models) {
-    if (models.length > 0) {
-      print(JsonSchemaParser.getClasses(className, models));
+    if (models.isNotEmpty) {
+      print(JsonSchemaParser._getClasses(className, models));
     }
 
     for (Model model in models) {

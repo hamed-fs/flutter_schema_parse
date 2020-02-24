@@ -26,4 +26,4 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/receive.json
+    - assets/sample_schema.json
