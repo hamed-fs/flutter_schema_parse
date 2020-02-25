@@ -8,6 +8,7 @@ import 'package:flutter_schema_parse/schema_model.dart';
 const String _objectType = 'object';
 const String _arrayType = 'array';
 
+/// A Class for Parsing Receive and Send JSON Schemas.
 class JsonSchemaParser {
   List<StringBuffer> _result;
 
@@ -40,11 +41,15 @@ class JsonSchemaParser {
     @required List<SchemaModel> models,
   }) {
     final StringBuffer result = StringBuffer()
-      ..write('class $className {')
-      ..write(_createContractor(className: className, models: models))
-      ..write(_createFromJsonMethod(className: className, models: models))
-      ..write(_createToJsonMethod(models: models))
-      ..write('}');
+      ..write(
+        '''
+          class $className {
+            ${_createContractor(className: className, models: models)}
+            ${_createFromJsonMethod(className: className, models: models)}
+            ${_createToJsonMethod(models: models)}
+          }
+        ''',
+      );
 
     return DartFormatter().format(result.toString());
   }
@@ -114,8 +119,12 @@ class JsonSchemaParser {
     @required List<SchemaModel> models,
   }) {
     final StringBuffer result = StringBuffer()
-      ..write('Map<String, dynamic> toJson() {')
-      ..write('final Map<String, dynamic> data = Map<String, dynamic>();');
+      ..write(
+        '''
+          Map<String, dynamic> toJson() {
+            final Map<String, dynamic> data = Map<String, dynamic>();
+        ''',
+      );
 
     for (SchemaModel model in models) {
       final String title = model.title;
@@ -131,8 +140,7 @@ class JsonSchemaParser {
       } else if (schemaType == _arrayType) {
         result.write('''
           if ($title != null) {
-            data['$schemaTitle'] =
-                $title.map((item) => item.toJson()).toList();
+            data['$schemaTitle'] = $title.map((item) => item.toJson()).toList();
           }
         ''');
       } else {
@@ -145,6 +153,7 @@ class JsonSchemaParser {
     return result;
   }
 
+  /// Pass Decoded JSON Schema to This Method for Getting List of Objects.
   static List<SchemaModel> getModel({@required Map<String, dynamic> schema}) {
     final List<SchemaModel> parentModel = <SchemaModel>[];
     final Map<String, dynamic> schemaProperties = schema['properties'];
@@ -175,6 +184,7 @@ class JsonSchemaParser {
     return parentModel;
   }
 
+  /// Generating Main and Nested Classes from Schema Models that Comes from getModel() Method.
   List<StringBuffer> getClasses({
     @required String className,
     @required List<SchemaModel> models,
